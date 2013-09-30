@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">UNCC Photos</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_photos">Photos Activity</string>
+
+    <string-array name="photo_urls">
+        <item>http://farm8.staticflickr.com/7344/8730715795_49c6f7ca46.jpg</item>
+        <item>http://farm8.staticflickr.com/7429/8731821684_af03019d07.jpg</item>
+        <item>http://farm8.staticflickr.com/7284/8731853690_4924a98ef5.jpg</item>
+        <item>http://farm8.staticflickr.com/7424/8731831644_64e84a201c.jpg</item>
+        <item>http://farm8.staticflickr.com/7406/8731851660_483b4f6e73.jpg</item>
+        <item>http://farm8.staticflickr.com/7411/8731852556_5e50c98421.jpg</item>
+        <item>http://farm8.staticflickr.com/7295/8730733859_14dd8c7b67.jpg</item>
+        <item>http://farm3.staticflickr.com/2820/9494152022_b58d9ebb97.jpg</item>
+        <item>http://farm6.staticflickr.com/5466/9759164264_d55bdccf99.jpg</item>
+        <item>http://farm4.staticflickr.com/3718/9921170466_684c556137.jpg</item>
+        <item>http://farm4.staticflickr.com/3754/9921216314_e8231a184b.jpg</item>
+        <item>http://farm8.staticflickr.com/7331/9921310143_6b009e9e46.jpg</item>
+        <item>http://farm8.staticflickr.com/7353/9646376146_007628ede6.jpg</item>
+        <item>http://farm8.staticflickr.com/7436/9646411764_b7bd9f5b07.jpg</item>
+        <item>http://farm6.staticflickr.com/5468/9643172863_21bf5be2a0.jpg</item>
+        <item>http://farm3.staticflickr.com/2822/9646410328_4cb00727d4.jpg</item>
+        <item>http://farm8.staticflickr.com/7413/9646423470_b00281951b.jpg</item>
+        <item>http://farm4.staticflickr.com/3674/9646427462_c21c232de4.jpg</item>
+        <item>http://farm6.staticflickr.com/5538/9646428706_69230ef004.jpg</item>
+        <item>http://farm8.staticflickr.com/7288/9646431680_820c3f70d2.jpg</item>
+        <item>http://farm8.staticflickr.com/7294/9643190645_55a6c9390f.jpg</item>
+        <item>http://farm6.staticflickr.com/5474/9646433970_efc97efe68.jpg</item>
+        <item>http://farm3.staticflickr.com/2883/9643193679_019de436ac.jpg</item>
+        <item>http://farm4.staticflickr.com/3755/9646438074_12b9c861f1.jpg</item>
+        <item>http://farm4.staticflickr.com/3759/9646438386_469eed5772.jpg</item>
+        <item>http://farm8.staticflickr.com/7305/9646446852_6e485f90a1.jpg</item>
+        <item>http://farm9.staticflickr.com/8032/8043029022_06643dc31e.jpg</item>
+    </string-array>
+    <string name="photos">Photos</string>
+    <string name="slideshow">Slide Show</string>
+
+</resources>
