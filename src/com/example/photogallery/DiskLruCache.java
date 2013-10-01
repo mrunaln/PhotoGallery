@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.util;
+package com.example.photogallery;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
