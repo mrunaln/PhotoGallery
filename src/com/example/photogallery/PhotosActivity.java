@@ -74,7 +74,6 @@ public class PhotosActivity extends Activity {
 		right = (ImageButton) findViewById(R.id.rightButton);
 		
 		left.setAlpha(0.0f);
-	//	right.setMaxWidth((int) (iv.getWidth() * 0.2));
 		right.setAlpha(0.0f);
 		currResources = this.getResources();
 		handler = new Handler(new Handler.Callback() {
@@ -109,7 +108,7 @@ public class PhotosActivity extends Activity {
 						public void onClick(View v) {
 							
 							displayProgressDialog();
-							Log.d("Mrunal"," Right button clicked !");
+							Log.d("Mrunal","----------- Right button clicked !-----------");
 							photoIndex = (photoIndex + 1) % urls.length;
 							taskPool.execute(new imageDownload(photoIndex,false));
 						}
@@ -118,7 +117,7 @@ public class PhotosActivity extends Activity {
 						@Override
 						public void onClick(View v) {
 							displayProgressDialog();
-							Log.d("Mrunal"," Left button clicked !");
+							Log.d("Mrunal"," ----------Left button clicked ! ---------");
 							
 							photoIndex = photoIndex == 0 ? urls.length - 1 : (photoIndex - 1) % urls.length;
 							taskPool.execute(new imageDownload(photoIndex,false));
@@ -186,14 +185,18 @@ public class PhotosActivity extends Activity {
 			handler.sendEmptyMessage(msg.what);
 	        try {
 	        	URL url = new URL(urls[photoindex]);
-	        	image = getBitmapFromDiskCache(urls[photoindex]);
+	        	String photoKey = extractPhotoKeyFromPhotoURL();
+	        	Log.d("Mrunal", "Cache Key : " + photoKey);
+	        	image = getBitmapFromDiskCache(photoKey);
 	            if(image == null) //Cache MISS
 	            {
+	            	Log.d("Mrunal"," CASHE MISS ! downloading photo from url url =  " + urls[photoIndex]);
 	            	image = BitmapFactory.decodeStream(url.openStream());	
 	            }
-	        	addBitmapToCache(urls[photoindex], image);
+	        	addBitmapToCache(photoKey, image);
 	            
 	             if(image != null){
+	            	 Log.d("Mrunal"," image != NULL ");
 	            	 if(mode) 	
 	            		 sendPhotoToSlideShow(msg);
 	            	 else 		
@@ -242,7 +245,7 @@ public class PhotosActivity extends Activity {
 	}
 
 	public void dismissDialog(){
-		Log.d("Mrunal","Dismissing dialog ------ " + progressdialog.isShowing());
+		Log.d("Mrunal","----------------- Dismissing dialog ------------ " + progressdialog.isShowing());
 		if(progressdialog.isShowing())
 			progressdialog.dismiss();
 	}
@@ -251,7 +254,7 @@ public class PhotosActivity extends Activity {
 	    @Override
 	    protected Void doInBackground(File... params) {
 	        synchronized (mDiskCacheLock) {
-	        	Log.d("Mrunal", "Cache file in asynctask: " + params);
+	        	Log.d("Mrunal", "Cache file in asynctask: " + params[0].toString());
 	            File cacheDir = params[0];
 	        	try {
 					mDiskLruCache = DiskLruCache.open(cacheDir, 1, 1 ,DISK_CACHE_SIZE);
@@ -267,11 +270,12 @@ public class PhotosActivity extends Activity {
 	    }
 	}
 	
-	public void addBitmapToCache(String key, Bitmap bitmap) {
+	public void addBitmapToCache(String key, Bitmap bitmap) throws IOException {
 
 	    // Also add to disk cache
 	    synchronized (mDiskCacheLock) {
 	        if (mDiskLruCache != null && getBitmap(key) == null) {
+	        	Log.d("Mrunal","in addBitmapToCache - calling putBitmap ");
 	            putBitmap(key, bitmap);
 	        }
 	    }
@@ -286,6 +290,7 @@ public class PhotosActivity extends Activity {
 	            } catch (InterruptedException e) {}
 	        }
 	        if (mDiskLruCache != null) {
+	        	Log.d("Mrunal","in getBitmapFromDiskCache : calling getBitmap ");
 	            return getBitmap(key);
 	        }
 	    }
@@ -308,16 +313,18 @@ public class PhotosActivity extends Activity {
 	    return new File(cachePath + File.separator + uniqueName);
 	}
 	
-	public void putBitmap( String key, Bitmap data ) {
+	public void putBitmap( String key, Bitmap data ) throws IOException {
 
         DiskLruCache.Editor editor = null;
         try {
             editor = mDiskLruCache.edit( key );
+        	Log.d("Mrunal","1.  In putBitmap ---- key,editor = " + key + "," + editor);
             if ( editor == null ) {
                 return;
             }
 
-            if( writeBitmapToFile( data, editor ) ) {               
+            if( writeBitmapToFile( data, editor ) ) {
+            	Log.d("Mrunal","2 - In putBitmap - successful writeBitmapToFile ???? ");
                 mDiskLruCache.flush();
                 editor.commit();
                 if ( BuildConfig.DEBUG ) {
@@ -329,7 +336,24 @@ public class PhotosActivity extends Activity {
                     Log.d( "cache_test_DISK_", "ERROR on: image put on disk cache " + key );
                 }
             }   
-        } catch (IOException e) {
+        }catch (FileNotFoundException e){
+        	Log.d("Mrunal", "WRITEBITMAPTOFILE - File not found ");
+        	
+        	File cacheDir = getDiskCacheDir(this, DISK_CACHE_SUBDIR);
+        	mDiskLruCache = DiskLruCache.open(cacheDir, 1, 1 ,DISK_CACHE_SIZE);
+    	    cacheDir.mkdirs();
+    	    File noMedia = new File(cacheDir.toString(), ".nomedia");
+            try {
+                noMedia.createNewFile();
+                Log.d("Mrunal", "Cache created" + cacheDir.toString());
+            } catch (IOException x) {
+                Log.d("Mrunal", "Couldn't create .nomedia file");
+                x.printStackTrace();
+            }
+            
+        	//return true;
+        } 
+        catch (IOException e) {
             if ( BuildConfig.DEBUG ) {
                 Log.d( "Mrunal", "ERROR on: image put on disk cache " + key + e);
             }
@@ -340,6 +364,8 @@ public class PhotosActivity extends Activity {
             } catch (IOException ignored) {
             }           
         }
+       
+        
 
     }
 
@@ -349,28 +375,27 @@ public class PhotosActivity extends Activity {
 	        try {
 	            out = new BufferedOutputStream( editor.newOutputStream( 0 ), 8 * 1024 );
 	            return bitmap.compress( CompressFormat.JPEG, 70, out );
-	        } finally {
+	        }finally {
 	            if ( out != null ) {
 	                out.close();
 	            }
 	        }
 	    }
 	
-	
 	public Bitmap getBitmap( String key ) {
-
+		
         Bitmap bitmap = null;
         DiskLruCache.Snapshot snapshot = null;
         try {
-
+        	Log.d("Mrunal","1.  In getBitmap ---- key = " + key);
             snapshot = mDiskLruCache.get( key );
             if ( snapshot == null ) {
+            	Log.d("Mrunal"," 2. In getBitmap  reutnring null---- ");
                 return null;
             }
             final InputStream in = snapshot.getInputStream( 0 );
             if ( in != null ) {
-                final BufferedInputStream buffIn = 
-                new BufferedInputStream( in, 8 * 1024 );
+                final BufferedInputStream buffIn = new BufferedInputStream( in, 8 * 1024 );
                 bitmap = BitmapFactory.decodeStream( buffIn );              
             }   
         } catch ( IOException e ) {
@@ -384,10 +409,18 @@ public class PhotosActivity extends Activity {
         if ( BuildConfig.DEBUG ) {
             Log.d( "Mrunal", bitmap == null ? "" : "image read from disk " + key);
         }
-
+        Log.d("Mrunal","in getBitmap : returning the bitmap from here");
         return bitmap;
 
     }
+	/**
+	 * @return
+	 */
+	public String extractPhotoKeyFromPhotoURL() {
+		String[] urlSplit = urls[photoIndex].split("\\/");
+		String keyFromURL = urlSplit[urlSplit.length - 1].split("\\.")[0];
+		return keyFromURL;
+	}
 	
 }
 
