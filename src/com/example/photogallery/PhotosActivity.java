@@ -1,3 +1,8 @@
+/*
+ * Mrunal Nargunde
+ * Assignment 4
+ * 
+ */
 package com.example.photogallery;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -9,6 +14,8 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -361,6 +368,12 @@ public class PhotosActivity extends Activity {
 		String[] urlSplit = urls[photoIndex].split("\\/");
 		String keyFromURL = urlSplit[urlSplit.length - 1].split("\\.")[0];
 		return keyFromURL;
+	}
+
+	@Override
+	public void onBackPressed() {
+		taskPool.shutdown();
+		super.onBackPressed();
 	}
 	
 }

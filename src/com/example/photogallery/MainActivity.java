@@ -1,3 +1,8 @@
+/*
+ * Mrunal Nargunde
+ * Assignment 4
+ * 
+ */
 package com.example.photogallery;
 
 import android.os.Bundle;
