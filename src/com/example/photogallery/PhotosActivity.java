@@ -128,19 +128,6 @@ public class PhotosActivity extends Activity {
 		}
 	}
 	
-	/* Using executeThread func to run the threads after delay in Slideshow Mode */
-	public void executeThread(){
-		photoIndex = (photoIndex + 1) % urls.length;
-		try {
-			Thread.sleep(delay);
-		} catch (InterruptedException e) {
-			Log.d("Mrunal","Thread unable to sleep exception !");
-			e.printStackTrace();
-		}
-		taskPool.execute(new imageDownload(photoIndex, true));
-		
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -173,10 +160,21 @@ public class PhotosActivity extends Activity {
 	        	addBitmapToCache(photoKey, image);
 	            
 	             if(image != null){
-	            	 if(mode) 	
-	            		 sendPhotoToSlideShow(msg);
-	            	 else 		
-	            		 sendPhoto(msg);
+	            	 msg.what = 1;
+	            	 handler.sendEmptyMessage(msg.what);
+	            	 Bundle bundle = new Bundle();
+	            	 bundle.putParcelable("Image", image);
+	            	 msg.setData(bundle);
+	            	 if(mode){ 	
+	            		 handler.sendMessageDelayed(msg, delay);
+	            		 Thread.sleep(delay);
+	            		 photoIndex = (photoIndex + 1) % urls.length;
+	            		 taskPool.execute(new imageDownload(photoIndex, true));
+	            	 }
+	            	 else{ 		
+	            		 handler.sendMessage(msg);
+	            		 dismissDialog();
+	            	 }
 	             } else{
 	            	 Log.d("Mrunal","Image is Null , bad url !");
 	            	 msg.what = -1;
@@ -188,27 +186,6 @@ public class PhotosActivity extends Activity {
 	        	handler.sendEmptyMessage(msg.what);
 	        } 
 		}
-	}
-	
-	public void sendPhoto(Message msg){
-		msg.what = 1;
-   	 	handler.sendEmptyMessage(msg.what);
-   	 	Bundle bundle = new Bundle();
-   	 	bundle.putParcelable("Image", image);
-   	 	msg.setData(bundle);
-		handler.sendMessage(msg);
-		dismissDialog();
-
-	}
-	
-	public void sendPhotoToSlideShow(Message msg){
-		msg.what = 1;
-   	 	handler.sendEmptyMessage(msg.what);
-   	 	Bundle bundle = new Bundle();
-   	 	bundle.putParcelable("Image", image);
-   	 	msg.setData(bundle);
-   	 	handler.sendMessageDelayed(msg, delay);
-		executeThread();
 	}
 	
 	public void displayProgressDialog(){
@@ -355,7 +332,7 @@ public class PhotosActivity extends Activity {
         }
 
         if ( BuildConfig.DEBUG ) {
-            Log.d( "Mrunal", bitmap == null ? "" : "image read from disk " + key);
+            Log.d( "Mrunal", bitmap == null ? "" : "image read from disk ");
         }
         return bitmap;
 
