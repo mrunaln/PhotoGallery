@@ -84,6 +84,17 @@ public class PhotosActivity extends Activity {
 					case 1:
 						if (MainActivity.mainProgressdialog.isShowing())
 							MainActivity.mainProgressdialog.dismiss();
+						/*If not thread.sleep then this is the solution to it .
+						 * Currently not using this because handler is same for photo-mode and slideshow mode */
+						/*else{
+						handler.postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								 photoIndex = (photoIndex + 1) % urls.length;
+			            		 taskPool.execute(new imageDownload(photoIndex, true));								
+							}
+						}, 2000);
+						}*/
 						iv.setImageBitmap(image);
 						break;
 					default:
