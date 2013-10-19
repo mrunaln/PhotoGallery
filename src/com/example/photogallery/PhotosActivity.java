@@ -50,19 +50,19 @@ public class PhotosActivity extends Activity {
     ExecutorService taskPool;
 	Handler 		handler;
 	ArrayList<Data> gotData;
-	/*
+	
 	private DiskLruCache mDiskLruCache;
 	private final Object mDiskCacheLock = new Object();
 	private boolean mDiskCacheStarting = true;
 	private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
 	private static final String DISK_CACHE_SUBDIR = "thumbnails";
-	*/
+	
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
-		//File cacheDir = getDiskCacheDir(this, DISK_CACHE_SUBDIR);
-	    //new InitDiskCacheTask().execute(cacheDir);
+		File cacheDir = getDiskCacheDir(this, DISK_CACHE_SUBDIR);
+	    new InitDiskCacheTask().execute(cacheDir);
 		progressdialog = new ProgressDialog(this);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_photos);
@@ -159,14 +159,14 @@ public class PhotosActivity extends Activity {
 			handler.sendEmptyMessage(msg.what);
 	        try {
 	        	URL url = new URL(gotData.get(photoindex).getImageurl());
-	        	//String photoKey = extractPhotoKeyFromPhotoURL();
-	        	//image = getBitmapFromDiskCache(photoKey);
-	            //if(image == null) //Cache MISS
-	            //{
+	        	String photoKey = extractPhotoKeyFromPhotoURL();
+	        	image = getBitmapFromDiskCache(photoKey);
+	            if(image == null) //Cache MISS
+	            {
 	            	// Cache miss occured. Hence downloading the image from url
 	            image = BitmapFactory.decodeStream(url.openStream());	
-	            //}
-	        //	addBitmapToCache(photoKey, image);
+	            }
+	        	addBitmapToCache(photoKey, image);
 	            
 	             if(image != null){
 	            	 msg.what = 1;
@@ -220,10 +220,10 @@ public class PhotosActivity extends Activity {
 	
 	
 	/* LRU cache implementation */
-	/*
+	
 	 //returns the key extracted from the url in string.xml
  	public String extractPhotoKeyFromPhotoURL() {
-		String[] urlSplit = urls[photoIndex].split("\\/");
+ 		String[] urlSplit = gotData.get(photoIndex).getImageurl().split("\\/");
 		String keyFromURL = urlSplit[urlSplit.length - 1].split("\\.")[0];
 		return keyFromURL;
 	}
@@ -362,7 +362,7 @@ public class PhotosActivity extends Activity {
 
     }
 	
-*/	
+	
 	
 }
 
