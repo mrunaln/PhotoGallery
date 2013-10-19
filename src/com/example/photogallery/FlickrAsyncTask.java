@@ -60,8 +60,6 @@ public class FlickrAsyncTask extends AsyncTask<String,Void, ArrayList<Data>> {
 					 data = ThisUtils.mySAXParser.parseData(null,sb.toString());
 				 
 				 }
-				 //Log.d("Mrunal"," data = " + data.toString());
-				 
 				 con.disconnect();
 				 return data;
 			 }
@@ -76,8 +74,6 @@ public class FlickrAsyncTask extends AsyncTask<String,Void, ArrayList<Data>> {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
-		
 		return null;
 	}
 

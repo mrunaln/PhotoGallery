@@ -26,38 +26,11 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		Button b = (Button)findViewById(R.id.photobutton);
 		mainProgressdialog = new ProgressDialog(this);
-		//intent = new Intent(this, PhotosActivity.class);
-	/*	new FlickrAsyncTask().execute(
-				"http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=37105cf55a263f51b8622ab0f966caa7&tags=uncc&per_page=100&extras=views,url_m"
-				, "xml");
-				*/
-		/*
-		RadioGroup radioButtonGroup = (RadioGroup) findViewById(R.id.xmljson);
-		
-		radioButtonGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				Log.d("Mrunal","checkedid - " + checkedId);
-				if(checkedId == R.id.radio0){
-					new FlickrAsyncTask().execute(
-							"http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=37105cf55a263f51b8622ab0f966caa7&tags=uncc&per_page=100&extras=views,url_m"
-							, "xml");
-				}else if (checkedId == R.id.radio1){
-					new FlickrAsyncTask().execute(
-							"http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=7c36a4e3686f019ccd34f970eabd4f69&tags=uncc&extras=views%2Curl_m&per_page=100&format=json&nojsoncallback=1&auth_token=72157636693295123-ec52b35f3c53d3bf&api_sig=1b4629aaf9d59193cdb6be54ede18324"
-							, "json");
-				}
-			}
-		});*/
 		b.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				displaymainProgressDialog();
-				//intent.putExtra("Button", R.id.photobutton);
-				//Log.d("Mrunal","Starting next Activity !");
-				//startActivity(intent);
 				startParsing(R.id.photobutton);
 			}
 		});
@@ -69,8 +42,6 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				System.out.println("Button 2 clicked -----");
 				displaymainProgressDialog();
-				//intent.putExtra("Button", R.id.slideshowbutton);
-				//startActivity(intent);
 				startParsing(R.id.slideshowbutton);
 			}
 		});

@@ -39,17 +39,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class PhotosActivity extends Activity {
-	static ProgressDialog	progressdialog;
+	ProgressDialog	progressdialog;
 	String[] 		urls;
-	static Bitmap 			image;
+    Bitmap 			image;
 	ImageView 		iv;
 	ImageButton		left, right;
-	private static long 	delay = 2000;
-	static int 			photoIndex;
+	private  long 	delay = 2000;
+	int 			photoIndex;
 	
-	static ExecutorService taskPool;
-	static Handler 		handler;
-	static ArrayList<Data> gotData;
+    ExecutorService taskPool;
+	Handler 		handler;
+	ArrayList<Data> gotData;
 	/*
 	private DiskLruCache mDiskLruCache;
 	private final Object mDiskCacheLock = new Object();
@@ -64,8 +64,6 @@ public class PhotosActivity extends Activity {
 		//File cacheDir = getDiskCacheDir(this, DISK_CACHE_SUBDIR);
 	    //new InitDiskCacheTask().execute(cacheDir);
 		progressdialog = new ProgressDialog(this);
-		//Log.d("Mrunal","In PhotoActivity - showing progress dialog at start");
-		//displayProgressDialog();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_photos);
 		
@@ -106,11 +104,7 @@ public class PhotosActivity extends Activity {
 			//taskPool = Executors.newFixedThreadPool(urls.length);
 			taskPool = Executors.newFixedThreadPool(10);
 			Log.d("Mrunal","TRying to get THISDATA now");
-			//while(gotData == null ){
-				//Log.d("Mrunal"," got Data is still null so keep looping here till u get the data");
 			    gotData = getIntent().getParcelableArrayListExtra("THISDATA");
-			//}
-			//dismissDialog();
 			Log.d("Mrunal","Dismissing dialog and switching among the button pressed.");
 			switch(id){
 				case R.id.photobutton:
@@ -151,7 +145,7 @@ public class PhotosActivity extends Activity {
 	}
 	
 	/*Runnable downloads image if it does not reside in the Lru cache */
-	public static class imageDownload implements Runnable {
+	public class imageDownload implements Runnable {
 		int photoindex;
 		boolean mode;
 		public imageDownload(int nowIndex, boolean thisMode) {
@@ -212,21 +206,9 @@ public class PhotosActivity extends Activity {
 		progressdialog.show();
 	}
 
-	public static void dismissDialog(){
+	public void dismissDialog(){
 		if(progressdialog.isShowing())
 			progressdialog.dismiss();
-	}
-	
-	
-	/**
-	 * returns the key extracted from the url in string.xml
-	 */
-	
-	
-	public String extractPhotoKeyFromPhotoURL() {
-		String[] urlSplit = urls[photoIndex].split("\\/");
-		String keyFromURL = urlSplit[urlSplit.length - 1].split("\\.")[0];
-		return keyFromURL;
 	}
 
 	@Override
@@ -237,11 +219,14 @@ public class PhotosActivity extends Activity {
 	
 	
 	
-	
-	
-	
 	/* LRU cache implementation */
 	/*
+	 //returns the key extracted from the url in string.xml
+ 	public String extractPhotoKeyFromPhotoURL() {
+		String[] urlSplit = urls[photoIndex].split("\\/");
+		String keyFromURL = urlSplit[urlSplit.length - 1].split("\\.")[0];
+		return keyFromURL;
+	}
 	class InitDiskCacheTask extends AsyncTask<File, Void, Void> {
 	    @Override
 	    protected Void doInBackground(File... params) {
