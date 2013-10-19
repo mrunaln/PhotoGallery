@@ -12,9 +12,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
 import org.json.JSONException;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -58,7 +55,6 @@ public class FlickrAsyncTask extends AsyncTask<String,Void, ArrayList<Data>> {
 						 line = buffer.readLine();
 					 }
 					 data = ThisUtils.mySAXParser.parseData(null,sb.toString());
-				 
 				 }
 				 con.disconnect();
 				 return data;
@@ -80,15 +76,6 @@ public class FlickrAsyncTask extends AsyncTask<String,Void, ArrayList<Data>> {
 	@Override
 	protected void onPostExecute(ArrayList<Data> result) {
 		super.onPostExecute(result);
-		/* SORT the list on views*/
-		
-		Collections.sort(result, new Comparator<Data>() {
-			@Override
-			public int compare(Data arg0, Data arg1) {
-				return Integer.parseInt(arg0.getViews()) > Integer.parseInt(arg1.getViews()) ? -1:
-					   Integer.parseInt(arg0.getViews()) < Integer.parseInt(arg1.getViews())? 1 : 0;
-			}
-		});
 		Log.d("Mrunal","Starting photoActivity from onPostExecute");
 		Intent intent = new Intent(context, PhotosActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

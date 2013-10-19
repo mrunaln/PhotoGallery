@@ -15,6 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -26,7 +28,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
@@ -46,31 +47,29 @@ public class PhotosActivity extends Activity {
 	ImageButton		left, right;
 	private  long 	delay = 2000;
 	int 			photoIndex;
-	
     ExecutorService taskPool;
 	Handler 		handler;
 	ArrayList<Data> gotData;
 	
 	private DiskLruCache mDiskLruCache;
-	private final Object mDiskCacheLock = new Object();
-	private boolean mDiskCacheStarting = true;
-	private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-	private static final String DISK_CACHE_SUBDIR = "thumbnails";
+	private final Object mDiskCacheLock 			= new Object();
+	private boolean mDiskCacheStarting 		 		= true;
+	private static final int DISK_CACHE_SIZE 		= 1024 * 1024 * 10; // 10MB
+	private static final String DISK_CACHE_SUBDIR 	= "thumbnails";
 	
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+		super.onCreate(savedInstanceState);
 		File cacheDir = getDiskCacheDir(this, DISK_CACHE_SUBDIR);
 	    new InitDiskCacheTask().execute(cacheDir);
 		progressdialog = new ProgressDialog(this);
-		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_photos);
 		
-		photoIndex = 0;
-		iv = (ImageView) findViewById(R.id.imageView1);
-		left = (ImageButton) findViewById(R.id.leftButton);
-		right = (ImageButton) findViewById(R.id.rightButton);
+		photoIndex  = 0;
+		iv 			= (ImageView) findViewById(R.id.imageView1);
+		left 		= (ImageButton) findViewById(R.id.leftButton);
+		right 		= (ImageButton) findViewById(R.id.rightButton);
 		left.setAlpha(0.0f);
 		right.setAlpha(0.0f);
 		
@@ -82,13 +81,11 @@ public class PhotosActivity extends Activity {
 					case 1:
 						if (MainActivity.mainProgressdialog.isShowing())
 							MainActivity.mainProgressdialog.dismiss();
-						    Log.d("Mrunal","title photoIndex = " + gotData.get(photoIndex).toString());
-						    TextView tv = (TextView)findViewById(R.id.Title);
-						    tv.setText(gotData.get(photoIndex).getTitle());
-						    tv = (TextView)findViewById(R.id.views);
-						    tv.setText(gotData.get(photoIndex).getViews());
-
-							iv.setImageBitmap(image);
+						TextView tv = (TextView)findViewById(R.id.Title);
+					    tv.setText(gotData.get(photoIndex).getTitle());
+						tv = (TextView)findViewById(R.id.views);
+						tv.setText( "Views "+gotData.get(photoIndex).getViews());
+						iv.setImageBitmap(image);
 						break;
 					default:
 						Log.d("Mrunal"," Image in processing");
@@ -98,18 +95,22 @@ public class PhotosActivity extends Activity {
 			}
 		});
 		/* Find out which button was clicked on the mainActivity */
-		Log.d("Mrunal","getting intent here");
 		if(getIntent().getExtras() != null){
 			int id = getIntent().getExtras().getInt("Button", 0);
-			//taskPool = Executors.newFixedThreadPool(urls.length);
 			taskPool = Executors.newFixedThreadPool(10);
 			Log.d("Mrunal","TRying to get THISDATA now");
-			    gotData = getIntent().getParcelableArrayListExtra("THISDATA");
-			Log.d("Mrunal","Dismissing dialog and switching among the button pressed.");
+			gotData = getIntent().getParcelableArrayListExtra("THISDATA");
+			/* SORT the list on views*/
+			Collections.sort(gotData, new Comparator<Data>() {
+				@Override
+				public int compare(Data arg0, Data arg1) {
+					return Integer.parseInt(arg0.getViews()) > Integer.parseInt(arg1.getViews()) ? -1:
+						   Integer.parseInt(arg0.getViews()) < Integer.parseInt(arg1.getViews())? 1 : 0;
+				}
+			});
 			switch(id){
 				case R.id.photobutton:
-					
-					taskPool.execute(new imageDownload(photoIndex, false));
+					taskPool.execute(new imageDownload(photoIndex,false));
 					right.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
@@ -128,7 +129,6 @@ public class PhotosActivity extends Activity {
 					});
 					break;
 				case R.id.slideshowbutton:
-					Log.d("Mrunal","You clicked slideshow button !");
 					taskPool.execute(new imageDownload(photoIndex, true));
 					break;
 			}
