@@ -19,11 +19,20 @@ import org.json.JSONException;
 import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
 public class FlickrAsyncTask extends AsyncTask<String,Void, ArrayList<Data>> {
 	ArrayList<Data> data;
+	Context context;
+	int buttonClicked;
+    FlickrAsyncTask(Context context, int buttonClicked) {
+        this.context = context;
+        this.buttonClicked = buttonClicked;
+    }
+    
 	@Override
 	protected ArrayList<Data> doInBackground(String... params) {
 		Log.d("Mrunal","Doing in background");
@@ -84,10 +93,13 @@ public class FlickrAsyncTask extends AsyncTask<String,Void, ArrayList<Data>> {
 					   Integer.parseInt(arg0.getViews()) < Integer.parseInt(arg1.getViews())? 1 : 0;
 			}
 		});
+		Log.d("Mrunal","Starting photoActivity from onPostExecute");
+		Intent intent = new Intent(context, PhotosActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.putExtra("Button", buttonClicked);
+		intent.putParcelableArrayListExtra("THISDATA", result);
+		context.startActivity(intent);
 		
-		MainActivity.intent.putParcelableArrayListExtra("THISDATA", result);
-	
-
 	}
 	
 }

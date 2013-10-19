@@ -39,17 +39,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class PhotosActivity extends Activity {
-	ProgressDialog	progressdialog;
+	static ProgressDialog	progressdialog;
 	String[] 		urls;
-	Bitmap 			image;
+	static Bitmap 			image;
 	ImageView 		iv;
 	ImageButton		left, right;
-	private long 	delay = 2000;
-	int 			photoIndex;
+	private static long 	delay = 2000;
+	static int 			photoIndex;
 	
-	ExecutorService taskPool;
-	Handler 		handler;
-	ArrayList<Data> gotData;
+	static ExecutorService taskPool;
+	static Handler 		handler;
+	static ArrayList<Data> gotData;
 	/*
 	private DiskLruCache mDiskLruCache;
 	private final Object mDiskCacheLock = new Object();
@@ -64,12 +64,12 @@ public class PhotosActivity extends Activity {
 		//File cacheDir = getDiskCacheDir(this, DISK_CACHE_SUBDIR);
 	    //new InitDiskCacheTask().execute(cacheDir);
 		progressdialog = new ProgressDialog(this);
+		//Log.d("Mrunal","In PhotoActivity - showing progress dialog at start");
+		//displayProgressDialog();
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_photos);
 		
 		photoIndex = 0;
-		/*FIXME - urls will be obatined from the API*/
-		//urls = getResources().getStringArray(R.array.photo_urls);
 		iv = (ImageView) findViewById(R.id.imageView1);
 		left = (ImageButton) findViewById(R.id.leftButton);
 		right = (ImageButton) findViewById(R.id.rightButton);
@@ -100,15 +100,18 @@ public class PhotosActivity extends Activity {
 			}
 		});
 		/* Find out which button was clicked on the mainActivity */
+		Log.d("Mrunal","getting intent here");
 		if(getIntent().getExtras() != null){
 			int id = getIntent().getExtras().getInt("Button", 0);
 			//taskPool = Executors.newFixedThreadPool(urls.length);
-			Log.d("Mrunal","TRying to get THISDATA now");
-			gotData = getIntent().getParcelableArrayListExtra("THISDATA");
 			taskPool = Executors.newFixedThreadPool(10);
-			//Log.d("Mrunal","gotdata size = " + gotData.size());
-			for(int i = 0 ; i < gotData.size();i++)
-				Log.d("Mrunal","views - "+ gotData.get(i).getViews());
+			Log.d("Mrunal","TRying to get THISDATA now");
+			//while(gotData == null ){
+				//Log.d("Mrunal"," got Data is still null so keep looping here till u get the data");
+			    gotData = getIntent().getParcelableArrayListExtra("THISDATA");
+			//}
+			//dismissDialog();
+			Log.d("Mrunal","Dismissing dialog and switching among the button pressed.");
 			switch(id){
 				case R.id.photobutton:
 					
@@ -117,10 +120,7 @@ public class PhotosActivity extends Activity {
 						@Override
 						public void onClick(View v) {
 							displayProgressDialog();
-							//photoIndex = (photoIndex + 1) % urls.length;
-							//photoIndex = (photoIndex + 1) % gotData.size();
 							photoIndex = photoIndex == 0 ? gotData.size() - 1 : (photoIndex - 1) % gotData.size();
-							//Log.d("Mrunal","Photo index after clicking next button" + photoIndex);
 							taskPool.execute(new imageDownload(photoIndex,false));
 						}
 					});
@@ -128,10 +128,7 @@ public class PhotosActivity extends Activity {
 						@Override
 						public void onClick(View v) {
 							displayProgressDialog();
-							//photoIndex = photoIndex == 0 ? urls.length - 1 : (photoIndex - 1) % urls.length;
-							//photoIndex = photoIndex == 0 ? gotData.size() - 1 : (photoIndex - 1) % gotData.size();
 							photoIndex = (photoIndex + 1) % gotData.size();
-							//Log.d("Mrunal","Photo index after clicking next button" + photoIndex);
 							taskPool.execute(new imageDownload(photoIndex,false));
 						}
 					});
@@ -154,7 +151,7 @@ public class PhotosActivity extends Activity {
 	}
 	
 	/*Runnable downloads image if it does not reside in the Lru cache */
-	public class imageDownload implements Runnable {
+	public static class imageDownload implements Runnable {
 		int photoindex;
 		boolean mode;
 		public imageDownload(int nowIndex, boolean thisMode) {
@@ -167,8 +164,6 @@ public class PhotosActivity extends Activity {
 			msg.what = 0;
 			handler.sendEmptyMessage(msg.what);
 	        try {
-	        	//URL url = new URL(urls[photoindex]);
-	        	Log.d("Mrunal","-- Running Runnable-- ");
 	        	URL url = new URL(gotData.get(photoindex).getImageurl());
 	        	//String photoKey = extractPhotoKeyFromPhotoURL();
 	        	//image = getBitmapFromDiskCache(photoKey);
@@ -217,7 +212,7 @@ public class PhotosActivity extends Activity {
 		progressdialog.show();
 	}
 
-	public void dismissDialog(){
+	public static void dismissDialog(){
 		if(progressdialog.isShowing())
 			progressdialog.dismiss();
 	}

@@ -52,11 +52,11 @@ static class mySAXParser extends DefaultHandler{
 		    	event = parser.next();
 		     }
 		}else if (json != null ){
-			Log.d("Mrunal"," in thisutils - Will parse with JSON");
+			
 			JSONObject jsonObject = new JSONObject(json);
 			jsonObject = jsonObject.getJSONObject("photos");
 			JSONArray jsonArray = jsonObject.getJSONArray("photo");
-			
+			Log.d("Mrunal"," in thisutils - Will parse with JSON");
 			for(int i= 0 ; i < jsonArray.length() ; i++){
 				JSONObject jsonPerson = jsonArray.getJSONObject(i);
 				onedata = new Data(null,null,null);

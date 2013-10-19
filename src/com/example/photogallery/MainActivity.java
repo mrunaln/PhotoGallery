@@ -26,11 +26,12 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		Button b = (Button)findViewById(R.id.photobutton);
 		mainProgressdialog = new ProgressDialog(this);
-		intent = new Intent(this, PhotosActivity.class);
+		//intent = new Intent(this, PhotosActivity.class);
 	/*	new FlickrAsyncTask().execute(
 				"http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=37105cf55a263f51b8622ab0f966caa7&tags=uncc&per_page=100&extras=views,url_m"
 				, "xml");
 				*/
+		/*
 		RadioGroup radioButtonGroup = (RadioGroup) findViewById(R.id.xmljson);
 		
 		radioButtonGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -48,16 +49,16 @@ public class MainActivity extends Activity {
 							, "json");
 				}
 			}
-		});
-		Log.d("Mrunal","Executed FlickrAsyncTask");
+		});*/
 		b.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				displaymainProgressDialog();
-				intent.putExtra("Button", R.id.photobutton);
-				Log.d("Mrunal","Starting next Activity !");
-				startActivity(intent);
+				//intent.putExtra("Button", R.id.photobutton);
+				//Log.d("Mrunal","Starting next Activity !");
+				//startActivity(intent);
+				startParsing(R.id.photobutton);
 			}
 		});
 		
@@ -68,10 +69,29 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				System.out.println("Button 2 clicked -----");
 				displaymainProgressDialog();
-				intent.putExtra("Button", R.id.slideshowbutton);
-				startActivity(intent);
+				//intent.putExtra("Button", R.id.slideshowbutton);
+				//startActivity(intent);
+				startParsing(R.id.slideshowbutton);
 			}
 		});
+	}
+	
+	public void startParsing(int buttonClicked){
+		Log.d("Mrunal","starting parsing here");
+		RadioGroup radioButtonGroup = (RadioGroup) findViewById(R.id.xmljson);
+		int radioButtonID = radioButtonGroup.getCheckedRadioButtonId();
+		View radioButton = radioButtonGroup.findViewById(radioButtonID);
+		int idx = radioButtonGroup.indexOfChild(radioButton);
+		Log.d("Mrunal"," idx = "+ idx); 
+		if(idx == 0){
+			new FlickrAsyncTask(this,buttonClicked).execute(
+					"http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=37105cf55a263f51b8622ab0f966caa7&tags=uncc&per_page=100&extras=views,url_m"
+					, "xml");
+		}else if (idx == 1){
+			new FlickrAsyncTask(getApplicationContext(),buttonClicked).execute(
+					"http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=37105cf55a263f51b8622ab0f966caa7&tags=uncc&extras=views%2Curl_m&per_page=100&format=json&nojsoncallback=1"
+					, "json");
+		}
 	}
 
 	@Override
