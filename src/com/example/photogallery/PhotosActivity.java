@@ -3,6 +3,8 @@
  * Assignment 4
  * 
  */
+
+
 package com.example.photogallery;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -12,9 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +36,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class PhotosActivity extends Activity {
 	ProgressDialog	progressdialog;
@@ -43,38 +46,35 @@ public class PhotosActivity extends Activity {
 	ImageButton		left, right;
 	private long 	delay = 2000;
 	int 			photoIndex;
-	static Resources currResources;
 	
 	ExecutorService taskPool;
 	Handler 		handler;
-	
+	ArrayList<Data> gotData;
+	/*
 	private DiskLruCache mDiskLruCache;
 	private final Object mDiskCacheLock = new Object();
 	private boolean mDiskCacheStarting = true;
 	private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
 	private static final String DISK_CACHE_SUBDIR = "thumbnails";
-
-	
+	*/
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		File cacheDir = getDiskCacheDir(this, DISK_CACHE_SUBDIR);
-	    new InitDiskCacheTask().execute(cacheDir);
-	    
-	    
+		
+		//File cacheDir = getDiskCacheDir(this, DISK_CACHE_SUBDIR);
+	    //new InitDiskCacheTask().execute(cacheDir);
 		progressdialog = new ProgressDialog(this);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_photos);
-		photoIndex = 0;
-		urls = getResources().getStringArray(R.array.photo_urls);
-		iv = (ImageView) findViewById(R.id.imageView1);
 		
+		photoIndex = 0;
+		/*FIXME - urls will be obatined from the API*/
+		//urls = getResources().getStringArray(R.array.photo_urls);
+		iv = (ImageView) findViewById(R.id.imageView1);
 		left = (ImageButton) findViewById(R.id.leftButton);
 		right = (ImageButton) findViewById(R.id.rightButton);
-		
 		left.setAlpha(0.0f);
 		right.setAlpha(0.0f);
-		currResources = this.getResources();
 		
 		/* Displaying image in image-view in handler callback */
 		handler = new Handler(new Handler.Callback() {
@@ -84,18 +84,13 @@ public class PhotosActivity extends Activity {
 					case 1:
 						if (MainActivity.mainProgressdialog.isShowing())
 							MainActivity.mainProgressdialog.dismiss();
-						/*If not thread.sleep then this is the solution to it .
-						 * Currently not using this because handler is same for photo-mode and slideshow mode */
-						/*else{
-						handler.postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								 photoIndex = (photoIndex + 1) % urls.length;
-			            		 taskPool.execute(new imageDownload(photoIndex, true));								
-							}
-						}, 2000);
-						}*/
-						iv.setImageBitmap(image);
+						    Log.d("Mrunal","title photoIndex = " + gotData.get(photoIndex).toString());
+						    TextView tv = (TextView)findViewById(R.id.Title);
+						    tv.setText(gotData.get(photoIndex).getTitle());
+						    tv = (TextView)findViewById(R.id.views);
+						    tv.setText(gotData.get(photoIndex).getViews());
+
+							iv.setImageBitmap(image);
 						break;
 					default:
 						Log.d("Mrunal"," Image in processing");
@@ -107,17 +102,25 @@ public class PhotosActivity extends Activity {
 		/* Find out which button was clicked on the mainActivity */
 		if(getIntent().getExtras() != null){
 			int id = getIntent().getExtras().getInt("Button", 0);
-			taskPool = Executors.newFixedThreadPool(urls.length);
-			
+			//taskPool = Executors.newFixedThreadPool(urls.length);
+			Log.d("Mrunal","TRying to get THISDATA now");
+			gotData = getIntent().getParcelableArrayListExtra("THISDATA");
+			taskPool = Executors.newFixedThreadPool(10);
+			//Log.d("Mrunal","gotdata size = " + gotData.size());
+			for(int i = 0 ; i < gotData.size();i++)
+				Log.d("Mrunal","views - "+ gotData.get(i).getViews());
 			switch(id){
 				case R.id.photobutton:
-					taskPool.execute(new imageDownload(photoIndex, false));
 					
+					taskPool.execute(new imageDownload(photoIndex, false));
 					right.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							displayProgressDialog();
-							photoIndex = (photoIndex + 1) % urls.length;
+							//photoIndex = (photoIndex + 1) % urls.length;
+							//photoIndex = (photoIndex + 1) % gotData.size();
+							photoIndex = photoIndex == 0 ? gotData.size() - 1 : (photoIndex - 1) % gotData.size();
+							//Log.d("Mrunal","Photo index after clicking next button" + photoIndex);
 							taskPool.execute(new imageDownload(photoIndex,false));
 						}
 					});
@@ -125,12 +128,16 @@ public class PhotosActivity extends Activity {
 						@Override
 						public void onClick(View v) {
 							displayProgressDialog();
-							photoIndex = photoIndex == 0 ? urls.length - 1 : (photoIndex - 1) % urls.length;
+							//photoIndex = photoIndex == 0 ? urls.length - 1 : (photoIndex - 1) % urls.length;
+							//photoIndex = photoIndex == 0 ? gotData.size() - 1 : (photoIndex - 1) % gotData.size();
+							photoIndex = (photoIndex + 1) % gotData.size();
+							//Log.d("Mrunal","Photo index after clicking next button" + photoIndex);
 							taskPool.execute(new imageDownload(photoIndex,false));
 						}
 					});
 					break;
 				case R.id.slideshowbutton:
+					Log.d("Mrunal","You clicked slideshow button !");
 					taskPool.execute(new imageDownload(photoIndex, true));
 					break;
 			}
@@ -160,15 +167,17 @@ public class PhotosActivity extends Activity {
 			msg.what = 0;
 			handler.sendEmptyMessage(msg.what);
 	        try {
-	        	URL url = new URL(urls[photoindex]);
-	        	String photoKey = extractPhotoKeyFromPhotoURL();
-	        	image = getBitmapFromDiskCache(photoKey);
-	            if(image == null) //Cache MISS
-	            {
+	        	//URL url = new URL(urls[photoindex]);
+	        	Log.d("Mrunal","-- Running Runnable-- ");
+	        	URL url = new URL(gotData.get(photoindex).getImageurl());
+	        	//String photoKey = extractPhotoKeyFromPhotoURL();
+	        	//image = getBitmapFromDiskCache(photoKey);
+	            //if(image == null) //Cache MISS
+	            //{
 	            	// Cache miss occured. Hence downloading the image from url
-	            	image = BitmapFactory.decodeStream(url.openStream());	
-	            }
-	        	addBitmapToCache(photoKey, image);
+	            image = BitmapFactory.decodeStream(url.openStream());	
+	            //}
+	        //	addBitmapToCache(photoKey, image);
 	            
 	             if(image != null){
 	            	 msg.what = 1;
@@ -179,7 +188,7 @@ public class PhotosActivity extends Activity {
 	            	 if(mode){ 	
 	            		 handler.sendMessageDelayed(msg, delay);
 	            		 Thread.sleep(delay);
-	            		 photoIndex = (photoIndex + 1) % urls.length;
+	            		 photoIndex = (photoIndex + 1) % gotData.size();
 	            		 taskPool.execute(new imageDownload(photoIndex, true));
 	            	 }
 	            	 else{ 		
@@ -213,7 +222,31 @@ public class PhotosActivity extends Activity {
 			progressdialog.dismiss();
 	}
 	
+	
+	/**
+	 * returns the key extracted from the url in string.xml
+	 */
+	
+	
+	public String extractPhotoKeyFromPhotoURL() {
+		String[] urlSplit = urls[photoIndex].split("\\/");
+		String keyFromURL = urlSplit[urlSplit.length - 1].split("\\.")[0];
+		return keyFromURL;
+	}
+
+	@Override
+	public void onBackPressed() {
+		taskPool.shutdown();
+		super.onBackPressed();
+	}
+	
+	
+	
+	
+	
+	
 	/* LRU cache implementation */
+	/*
 	class InitDiskCacheTask extends AsyncTask<File, Void, Void> {
 	    @Override
 	    protected Void doInBackground(File... params) {
@@ -349,20 +382,7 @@ public class PhotosActivity extends Activity {
 
     }
 	
-	/**
-	 * returns the key extracted from the url in string.xml
-	 */
-	public String extractPhotoKeyFromPhotoURL() {
-		String[] urlSplit = urls[photoIndex].split("\\/");
-		String keyFromURL = urlSplit[urlSplit.length - 1].split("\\.")[0];
-		return keyFromURL;
-	}
-
-	@Override
-	public void onBackPressed() {
-		taskPool.shutdown();
-		super.onBackPressed();
-	}
+*/	
 	
 }
 

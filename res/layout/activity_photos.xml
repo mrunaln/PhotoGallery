@@ -32,4 +32,18 @@
         android:layout_centerVertical="true"
         android:src="@android:drawable/btn_star" />
 
+    <TextView
+        android:id="@+id/Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageView1"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/views"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Title"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>

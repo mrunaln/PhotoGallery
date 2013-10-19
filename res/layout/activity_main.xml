@@ -1,5 +1,5 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -14,8 +14,8 @@
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/launcherimage" 
-        android:contentDescription="@string/action_settings"/>
+        android:contentDescription="@string/action_settings"
+        android:src="@drawable/launcherimage" />
 
     <Button
         android:id="@+id/photobutton"
@@ -31,5 +31,27 @@
         android:layout_alignBottom="@+id/imageView1"
         android:layout_alignParentRight="true"
         android:text="@string/slideshow" />
+
+    <RadioGroup
+        android:id="@+id/xmljson"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/imageView1"
+        android:layout_alignTop="@+id/imageView1" >
+
+        <RadioButton
+            android:id="@+id/radio0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="XML" />
+
+        <RadioButton
+            android:id="@+id/radio1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="JSON" />
+
+    </RadioGroup>
 
 </RelativeLayout>
